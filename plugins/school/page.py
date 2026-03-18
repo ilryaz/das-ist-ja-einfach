@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
-                               QVBoxLayout, QHBoxLayout, QLineEdit)
-from PySide6.QtCore import Qt
+                               QVBoxLayout, QHBoxLayout, QLineEdit,
+                               QFrame, QCalendarWidget)
 
 from .model import Notebook
 
@@ -11,17 +11,33 @@ class SchoolPage(QWidget):
 
         self.notebook = Notebook("Exam preparation", 30)
 
-        layout = QVBoxLayout(self)
+        main_layout = QVBoxLayout(self)
 
-        layout.addLayout(self.create_subject_block('Maths'))
+        upper_layout = QHBoxLayout()
 
-        layout.addLayout(self.create_subject_block('Informatics'))
+        # upper-left widgets
+        upper_left_layout = QVBoxLayout()
 
-        layout.addLayout(self.create_subject_block('Russian'))
+        calender = QCalendarWidget()
+        upper_left_layout.addWidget(calender)
 
-        layout.addLayout(self.create_subject_block('German'))
+        # upper-right widgets
+        upper_right_layout = QVBoxLayout()
 
-        layout.addStretch()
+        upper_right_layout.addLayout(self.create_subject_block('Mathematics'))
+        upper_right_layout.addLayout(self.create_subject_block('German'))
+
+        # lower widgets
+        lower_layout = QVBoxLayout()
+
+        lower_layout.addWidget(QLabel('me just a placeholder\nme just a placeholder\nme just a placeholder\nme just a placeholder\n'))
+
+        upper_layout.addLayout(upper_left_layout)
+        upper_layout.addLayout(upper_right_layout)
+        main_layout.addLayout(upper_layout)
+        main_layout.addLayout(lower_layout)
+
+        
 
     def create_subject_block(self, name):
         label = QLabel(name)
@@ -30,12 +46,9 @@ class SchoolPage(QWidget):
         input_field.setPlaceholderText("Write here")
         input_field.setFixedWidth(100)
 
-        button = QPushButton("+")
-        button.setFixedWidth(40)
 
         lower_layout = QHBoxLayout()
         lower_layout.addWidget(input_field)
-        lower_layout.addWidget(button)
         lower_layout.addStretch()
 
         block_layout = QVBoxLayout()
