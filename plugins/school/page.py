@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
-                               QVBoxLayout, QHBoxLayout, QLineEdit,
+                               QVBoxLayout, QHBoxLayout,
                                QCalendarWidget, QSplitter)
 from PySide6.QtCore import Qt
 from .model import Notebook
@@ -55,19 +55,18 @@ class SchoolPage(QWidget):
         
 
     def create_subject_block(self, name):
+        layout = QHBoxLayout()
+        
         label = QLabel(name)
-    
-        input_field = QLineEdit()
-        input_field.setPlaceholderText("Write here")
-        input_field.setFixedWidth(100)
+        
+        # buttons
+        add_one_hour = QPushButton('+1 hour')
+        add_thirty_minutes = QPushButton('+30 mins')
+        add_ten_minutes = QPushButton('+10 mins')
 
+        layout.addWidget(label)
+        layout.addWidget(add_one_hour)
+        layout.addWidget(add_thirty_minutes)
+        layout.addWidget(add_ten_minutes)
 
-        lower_layout = QHBoxLayout()
-        lower_layout.addWidget(input_field)
-        lower_layout.addStretch()
-
-        block_layout = QVBoxLayout()
-        block_layout.addWidget(label)
-        block_layout.addLayout(lower_layout)
-
-        return block_layout
+        return layout
