@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
                                QVBoxLayout, QHBoxLayout, QLineEdit,
-                               QFrame, QCalendarWidget)
-
+                               QCalendarWidget, QSplitter)
+from PySide6.QtCore import Qt
 from .model import Notebook
 
 
@@ -12,8 +12,12 @@ class SchoolPage(QWidget):
         self.notebook = Notebook("Exam preparation", 30)
 
         main_layout = QVBoxLayout(self)
+        main_splitter = QSplitter(Qt.Vertical)
+        main_splitter.setChildrenCollapsible(False)
 
-        upper_layout = QHBoxLayout()
+        # upper part
+        top_splitter = QSplitter(Qt.Horizontal)
+        top_splitter.setChildrenCollapsible(False)
 
         # upper-left widgets
         upper_left_layout = QVBoxLayout()
@@ -21,21 +25,32 @@ class SchoolPage(QWidget):
         calender = QCalendarWidget()
         upper_left_layout.addWidget(calender)
 
+        upper_left_widget = QWidget()
+        upper_left_widget.setLayout(upper_left_layout)
+
         # upper-right widgets
         upper_right_layout = QVBoxLayout()
 
         upper_right_layout.addLayout(self.create_subject_block('Mathematics'))
         upper_right_layout.addLayout(self.create_subject_block('German'))
 
+        upper_right_widget = QWidget()
+        upper_right_widget.setLayout(upper_right_layout)
+
         # lower widgets
         lower_layout = QVBoxLayout()
 
         lower_layout.addWidget(QLabel('me just a placeholder\nme just a placeholder\nme just a placeholder\nme just a placeholder\n'))
 
-        upper_layout.addLayout(upper_left_layout)
-        upper_layout.addLayout(upper_right_layout)
-        main_layout.addLayout(upper_layout)
-        main_layout.addLayout(lower_layout)
+        lower_widget = QWidget()
+        lower_widget.setLayout(lower_layout)
+
+        # summing everything up together
+        top_splitter.addWidget(upper_left_widget)
+        top_splitter.addWidget(upper_right_widget)
+        main_splitter.addWidget(top_splitter)
+        main_splitter.addWidget(lower_widget)
+        main_layout.addWidget(main_splitter)
 
         
 
