@@ -7,8 +7,8 @@ class Notebook:
 
         self.data = {}
 
-    def add_hours(self, hours):
-        week = self.get_current_week()
+    def add_hours(self, hours, day):
+        week = self.get_current_week(day)
 
         self.data[week] = self.data.setdefault(week, 0) + hours
 
@@ -19,6 +19,5 @@ class Notebook:
             return 100
         return (self.current_hours / self.target_hours) * 100
     
-    def get_current_week(self):
-        today = date.today()
-        return f"{today.year}-W{today.isocalendar().week}"
+    def get_current_week(self, date):
+        return f"{date.year}-W{date.isocalendar().week}"

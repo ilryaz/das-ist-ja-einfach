@@ -22,8 +22,8 @@ class SchoolPage(QWidget):
         # upper-left widgets
         upper_left_layout = QVBoxLayout()
 
-        calender = QCalendarWidget()
-        upper_left_layout.addWidget(calender)
+        self.calender = QCalendarWidget()
+        upper_left_layout.addWidget(self.calender)
 
         upper_left_widget = QWidget()
         upper_left_widget.setLayout(upper_left_layout)
@@ -33,10 +33,6 @@ class SchoolPage(QWidget):
 
         upper_right_layout.addLayout(self.create_subject_block('Mathematics'))
         upper_right_layout.addLayout(self.create_subject_block('German'))
-
-        self.add_one_hour.clicked.connect(lambda: self.notebook.add_hours(1))
-        self.add_thirty_minutes.clicked.connect(lambda: self.notebook.add_hours(0.5))
-        self.add_fifteen_minutes.clicked.connect(lambda: self.notebook.add_hours(0.25))
 
         upper_right_widget = QWidget()
         upper_right_widget.setLayout(upper_right_layout)
@@ -65,16 +61,26 @@ class SchoolPage(QWidget):
         label = QLabel(name)
         
         # buttons
-        self.add_one_hour = QPushButton('+1 hour')
-        self.add_thirty_minutes = QPushButton('+30 mins')
-        self.add_fifteen_minutes = QPushButton('+15 mins')
+        add_one_hour = QPushButton('+1 hour')
+        add_thirty_minutes = QPushButton('+30 mins')
+        add_fifteen_minutes = QPushButton('+15 mins')
+
+        add_one_hour.clicked.connect(lambda: self.handle_add_hours(name, 1))
+        add_thirty_minutes.clicked.connect(lambda: self.handle_add_hours(name, 0.5))
+        add_fifteen_minutes.clicked.connect(lambda: self.handle_add_hours(name, 0.25))
 
         layout.addWidget(label)
-        layout.addWidget(self.add_one_hour)
-        layout.addWidget(self.add_thirty_minutes)
-        layout.addWidget(self.add_fifteen_minutes)
+        layout.addWidget(add_one_hour)
+        layout.addWidget(add_thirty_minutes)
+        layout.addWidget(add_fifteen_minutes)
 
         return layout
+    
+    def handle_add_hours(self, subject, hours):
+        date = self.calender.selectedDate().toPython()
+        self.notebook.add_hours(hours, date)
+
+        print(subject, hours) # откладка
     
     def create_weekly_progress_bar(self):
         progress_bar = QProgressBar()
