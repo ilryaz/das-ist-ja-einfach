@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
-                               QVBoxLayout, QHBoxLayout,
+                               QVBoxLayout, QHBoxLayout, QProgressBar,
                                QCalendarWidget, QSplitter)
 from PySide6.QtCore import Qt
 from .model import Notebook
@@ -40,7 +40,8 @@ class SchoolPage(QWidget):
         # lower widgets
         lower_layout = QVBoxLayout()
 
-        lower_layout.addWidget(QLabel('me just a placeholder\nme just a placeholder\nme just a placeholder\nme just a placeholder\n'))
+        lower_layout.addWidget(self.create_weekly_progress_bar())
+        lower_layout.addWidget(self.create_weekly_progress_bar())
 
         lower_widget = QWidget()
         lower_widget.setLayout(lower_layout)
@@ -70,3 +71,8 @@ class SchoolPage(QWidget):
         layout.addWidget(add_ten_minutes)
 
         return layout
+    
+    def create_weekly_progress_bar(self):
+        progress_bar = QProgressBar()
+        progress_bar.minimum, progress_bar.maximum = 0, 100
+        return progress_bar
