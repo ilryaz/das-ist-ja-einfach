@@ -11,6 +11,7 @@ class SchoolPage(QWidget):
 
         self.notebooks = {"Mathematics": Notebook("Mathematics", 11),
                           "German": Notebook("German", 7)}
+        self.progress_bars = {}
 
         main_layout = QVBoxLayout(self)
         main_splitter = QSplitter(Qt.Vertical)
@@ -41,8 +42,8 @@ class SchoolPage(QWidget):
         # lower widgets
         lower_layout = QVBoxLayout()
 
-        lower_layout.addWidget(self.create_weekly_progress_bar())
-        lower_layout.addWidget(self.create_weekly_progress_bar())
+        for subject in self.notebooks.keys():
+            lower_layout.addWidget(self.create_weekly_progress_bar(subject))
 
         lower_widget = QWidget()
         lower_widget.setLayout(lower_layout)
@@ -53,8 +54,6 @@ class SchoolPage(QWidget):
         main_splitter.addWidget(top_splitter)
         main_splitter.addWidget(lower_widget)
         main_layout.addWidget(main_splitter)
-
-        
 
     def create_subject_block(self, name):
         layout = QHBoxLayout()
@@ -80,10 +79,24 @@ class SchoolPage(QWidget):
     def handle_add_hours(self, name, hours):
         date = self.calender.selectedDate().toPython()
         self.notebooks[name].add_hours(hours, date)
+        self.progress_bars[name].setValue(self.notebooks[name].progress(date))
 
-        print(name, hours) # откладка
+
+        print(name, hours, '\n') # откладка
     
-    def create_weekly_progress_bar(self):
+    def create_weekly_progress_bar(self, name):
+        date = self.calender.selectedDate().toPython()
+
         progress_bar = QProgressBar()
-        progress_bar.minimum, progress_bar.maximum = 0, 100
+
+        progress_bar.setMinimum(0)
+        progress_bar.setMaximum(self.notebooks[name].target_hours)
+        
+        progress_bar.setFormat(f"{name}: %v / %m")
+
+        current_value = self.notebooks[name].progress(date)
+        progress_bar.setValue(current_value)
+
+        self.progress_bars[name] = progress_bar
+        
         return progress_bar
