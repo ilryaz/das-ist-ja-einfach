@@ -9,7 +9,8 @@ class SchoolPage(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.notebook = Notebook("Exam preparation", 30)
+        self.notebooks = {"Mathematics": Notebook("Mathematics", 11),
+                          "German": Notebook("German", 7)}
 
         main_layout = QVBoxLayout(self)
         main_splitter = QSplitter(Qt.Vertical)
@@ -76,11 +77,11 @@ class SchoolPage(QWidget):
 
         return layout
     
-    def handle_add_hours(self, subject, hours):
+    def handle_add_hours(self, name, hours):
         date = self.calender.selectedDate().toPython()
-        self.notebook.add_hours(hours, date)
+        self.notebooks[name].add_hours(hours, date)
 
-        print(subject, hours) # откладка
+        print(name, hours) # откладка
     
     def create_weekly_progress_bar(self):
         progress_bar = QProgressBar()
