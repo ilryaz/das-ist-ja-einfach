@@ -61,13 +61,16 @@ class NewSubjectDialog(QDialog):
         return [day for day, btn in self.day_buttons.items() if btn.isChecked()]
 
     def return_data(self):
-        print({"name": self.name_edit.text(),
-                "days": self.get_days(),
-                "target_hours": int(self.time_goal_edit.text()) if self.time_goal_edit.text().isdigit() else 0})
+        name = self.name_edit.text().strip()
+        if not name:
+            return None  # или показать предупреждение
+    
+        target = self.time_goal_edit.text().strip()
+        if not target.isdigit() or int(target) <= 0:
+            return None
 
-        return {"name": self.name_edit.text(),
-                "days": self.get_days(),
-                "target_hours": int(self.time_goal_edit.text()) if self.time_goal_edit.text().isdigit() else 0}
+        return {name: {"days": self.get_days(),
+                       "target_hours": target}}
 
 
 
@@ -107,6 +110,21 @@ class WeekSettingsDialog(QDialog):
         dialog = NewSubjectDialog()
         if dialog.exec() == QDialog.Accepted:
             data = dialog.return_data()
+            print(data)
+            
+            item = QListWidgetItem()
+            item.setText(f"{data['name']} {data['target_hours']}h on {', '.join(data['days'])}")
+            item.setData(Qt.UserRole, data)
+
+            self.list_widget.addItem(item)
+
+    def get_subjects(self):
+        subjects = []
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            data = item.data(Qt.UserRole)
+            subjects.append(data)
+        return subjects
 
 
 class SchoolPage(QWidget):
@@ -186,8 +204,8 @@ class SchoolPage(QWidget):
     
     def handle_add_hours(self, subject, hours):
         date = self.calender.selectedDate().toPython()
-        self.notebooks[subject].add_hours(hours, date)
-        self.progress_bars[subject].setValue(self.notebooks[subject].progress(date))
+        self.notebook[subject].add_hours(hours, date)
+        self.progress_bars[subject].setValue(self.notebook[subject].progress(date))
 
 
         print(subject, hours, '\n') # откладка
