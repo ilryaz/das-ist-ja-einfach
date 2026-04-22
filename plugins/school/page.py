@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
                                QVBoxLayout, QHBoxLayout, QProgressBar,
                                QCalendarWidget, QSplitter, QDialog,
                                QDialogButtonBox, QListWidget, QListWidgetItem,
-                               QInputDialog)
+                               QLineEdit)
 from PySide6.QtCore import Qt
 from .model import Notebook
 
@@ -11,16 +11,45 @@ class NewSubjectDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("New subject")
-        self.setFixedSize(250, 300)
+        self.setFixedSize(350, 200)
 
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
+
+        # central widgets
+        central_widget = QWidget()
+        central_layout = QVBoxLayout()
+
+        name_edit = QLineEdit()
+        name_edit.setPlaceholderText('Enter a name')
+
+        time_goal_edit = QLineEdit()
+        time_goal_edit.setPlaceholderText('Enter target time')
+        
+        # central widgets / week buttons
+        buttons_widget = QWidget()
+        buttons_layout = QHBoxLayout()
+
+        for day in ("Mn", "Tu", "Wd", "Th", "Fr", "Sa", "Su"):
+            button = QPushButton(day)
+            buttons_layout.addWidget(button)
+
+        buttons_widget.setLayout(buttons_layout)
+
+        # central widgets / setting up
+        central_layout.addWidget(name_edit)
+        central_layout.addWidget(buttons_widget)
+        central_layout.addWidget(time_goal_edit)
+
+        central_widget.setLayout(central_layout)
 
         # lower widgets        
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
+        # finish setting up
+        main_layout.addWidget(central_widget)
         main_layout.addWidget(self.button_box)
 
 
@@ -60,10 +89,6 @@ class WeekSettingsDialog(QDialog):
     def add_subject(self):
         add_dialog = NewSubjectDialog()
         add_dialog.exec()
-
-
-
-
 
 
 class SchoolPage(QWidget):
