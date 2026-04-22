@@ -20,26 +20,31 @@ class NewSubjectDialog(QDialog):
         central_widget = QWidget()
         central_layout = QVBoxLayout()
 
-        name_edit = QLineEdit()
-        name_edit.setPlaceholderText('Enter a name')
+        self.name_edit = QLineEdit()
+        self.name_edit.setPlaceholderText('Enter a name')
 
-        time_goal_edit = QLineEdit()
-        time_goal_edit.setPlaceholderText('Enter target time')
+        self.time_goal_edit = QLineEdit()
+        self.time_goal_edit.setPlaceholderText('Enter target time')
         
         # central widgets / week buttons
         buttons_widget = QWidget()
         buttons_layout = QHBoxLayout()
 
+        self.day_buttons = {}
+
         for day in ("Mn", "Tu", "Wd", "Th", "Fr", "Sa", "Su"):
             button = QPushButton(day)
+            button.setCheckable(True)
+            button.setFixedSize(40, 30)
+            self.day_buttons[day] = button
             buttons_layout.addWidget(button)
 
         buttons_widget.setLayout(buttons_layout)
 
         # central widgets / setting up
-        central_layout.addWidget(name_edit)
+        central_layout.addWidget(self.name_edit)
         central_layout.addWidget(buttons_widget)
-        central_layout.addWidget(time_goal_edit)
+        central_layout.addWidget(self.time_goal_edit)
 
         central_widget.setLayout(central_layout)
 
@@ -51,6 +56,18 @@ class NewSubjectDialog(QDialog):
         # finish setting up
         main_layout.addWidget(central_widget)
         main_layout.addWidget(self.button_box)
+
+    def get_days(self):
+        return [day for day, btn in self.day_buttons.items() if btn.isChecked()]
+
+    def return_data(self):
+        print({"name": self.name_edit.text(),
+                "days": self.get_days(),
+                "target_hours": int(self.time_goal_edit.text()) if self.time_goal_edit.text().isdigit() else 0})
+
+        return {"name": self.name_edit.text(),
+                "days": self.get_days(),
+                "target_hours": int(self.time_goal_edit.text()) if self.time_goal_edit.text().isdigit() else 0}
 
 
 
@@ -87,8 +104,9 @@ class WeekSettingsDialog(QDialog):
         main_layout.addWidget(lower_widget)
 
     def add_subject(self):
-        add_dialog = NewSubjectDialog()
-        add_dialog.exec()
+        dialog = NewSubjectDialog()
+        if dialog.exec() == QDialog.Accepted:
+            data = dialog.return_data()
 
 
 class SchoolPage(QWidget):
