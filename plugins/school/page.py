@@ -111,6 +111,9 @@ class WeekSettingsDialog(QDialog):
         if dialog.exec() == QDialog.Accepted:
             data = dialog.return_data()
             
+            if type(data) != dict:
+                return None
+
             name = list(data.keys())[0]
             subject_data = data[name]
 
@@ -161,7 +164,7 @@ class SchoolPage(QWidget):
         # upper-right widgets
         upper_right_layout = QVBoxLayout()
 
-        for subject in self.notebook.week_config:
+        for subject in self.notebook.week_config.keys():
             upper_right_layout.addLayout(self.create_subject_block(subject))
 
         upper_right_widget = QWidget()
@@ -170,7 +173,7 @@ class SchoolPage(QWidget):
         # lower widgets
         lower_layout = QVBoxLayout()
 
-        for subject in self.notebook.week_config:
+        for subject in self.notebook.week_config.keys():
             lower_layout.addWidget(self.create_weekly_progress_bar(subject))
 
         lower_widget = QWidget()
