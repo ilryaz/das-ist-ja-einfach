@@ -110,10 +110,12 @@ class WeekSettingsDialog(QDialog):
         dialog = NewSubjectDialog()
         if dialog.exec() == QDialog.Accepted:
             data = dialog.return_data()
-            print(data)
             
+            name = list(data.keys())[0]
+            subject_data = data[name]
+
             item = QListWidgetItem()
-            item.setText(f"{data['name']} {data['target_hours']}h on {', '.join(data['days'])}")
+            item.setText(f"{name} {subject_data['target_hours']}h on {', '.join(subject_data['days'])}")
             item.setData(Qt.UserRole, data)
 
             self.list_widget.addItem(item)
@@ -168,7 +170,7 @@ class SchoolPage(QWidget):
         # lower widgets
         lower_layout = QVBoxLayout()
 
-        for subject in self.notebook.week_config.keys():
+        for subject in self.notebook.week_config:
             lower_layout.addWidget(self.create_weekly_progress_bar(subject))
 
         lower_widget = QWidget()
@@ -231,4 +233,9 @@ class SchoolPage(QWidget):
         settings = WeekSettingsDialog(self)
 
         if settings.exec() == QDialog.Accepted:
-            pass
+            subjects = settings.get_subjects()
+
+            for subject in subjects:
+                name = list(subject)[0]
+                self.notebook.week_config[name] = subject[name]
+                print(self.notebook.week_config)
