@@ -21,10 +21,10 @@ class NewSubjectDialog(QDialog):
         central_layout = QVBoxLayout()
 
         self.name_edit = QLineEdit()
-        self.name_edit.setPlaceholderText('Enter a name')
+        self.name_edit.setPlaceholderText("Enter a name")
 
         self.time_goal_edit = QLineEdit()
-        self.time_goal_edit.setPlaceholderText('Enter target time')
+        self.time_goal_edit.setPlaceholderText("Enter target time")
         
         # central widgets / week buttons
         buttons_widget = QWidget()
@@ -91,7 +91,7 @@ class WeekSettingsDialog(QDialog):
         lower_widget = QWidget()
         lower_layout = QHBoxLayout()
 
-        self.add_button = QPushButton('Add')
+        self.add_button = QPushButton("Add")
         self.add_button.clicked.connect(self.add_subject)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -118,7 +118,7 @@ class WeekSettingsDialog(QDialog):
             subject_data = data[name]
 
             item = QListWidgetItem()
-            item.setText(f"{name} {subject_data['target_hours']}h on {', '.join(subject_data['days'])}")
+            item.setText(f"{name} {subject_data["target_hours"]}h on {", ".join(subject_data["days"])}")
             item.setData(Qt.UserRole, data)
 
             self.list_widget.addItem(item)
@@ -150,7 +150,7 @@ class SchoolPage(QWidget):
         # upper-left widgets
         upper_left_layout = QVBoxLayout()
 
-        self.calender_settings = QPushButton('Settings')
+        self.calender_settings = QPushButton("Settings")
         self.calender_settings.clicked.connect(self.open_calender_settings)
 
         self.calender = QCalendarWidget()
@@ -192,9 +192,9 @@ class SchoolPage(QWidget):
         label = QLabel(subject)
         
         # buttons
-        add_one_hour = QPushButton('+1 hour')
-        add_thirty_minutes = QPushButton('+30 mins')
-        add_fifteen_minutes = QPushButton('+15 mins')
+        add_one_hour = QPushButton("+1 hour")
+        add_thirty_minutes = QPushButton("+30 mins")
+        add_fifteen_minutes = QPushButton("+15 mins")
 
         add_one_hour.clicked.connect(lambda: self.handle_add_hours(subject, 1))
         add_thirty_minutes.clicked.connect(lambda: self.handle_add_hours(subject, 0.5))
@@ -209,11 +209,11 @@ class SchoolPage(QWidget):
     
     def handle_add_hours(self, subject, hours):
         date = self.calender.selectedDate().toPython()
-        self.notebook[subject].add_hours(hours, date)
-        self.progress_bars[subject].setValue(self.notebook[subject].progress(date))
+        self.notebook.add_hours(hours, date, subject)
+        self.progress_bars[subject].setValue(self.notebook.progress(subject, date))
 
 
-        print(subject, hours, '\n') # откладка
+        print(subject, hours, "\n") # откладка
     
     def create_weekly_progress_bar(self, subject):
         date = self.calender.selectedDate().toPython()
