@@ -10,7 +10,7 @@ class Notebook:
 
         print(f'added {hours} hours to {week}, subject {subject} current: {self.data[week][subject]['current_hours']}')
 
-    def progress(self, date):
+    def progress(self, subject, date):
         week = self.get_current_week(date)
 
         return self.data.get(week, 0)

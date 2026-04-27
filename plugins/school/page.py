@@ -63,14 +63,14 @@ class NewSubjectDialog(QDialog):
     def return_data(self):
         name = self.name_edit.text().strip()
         if not name:
-            return None  # или показать предупреждение
+            return None
     
         target = self.time_goal_edit.text().strip()
         if not target.isdigit() or int(target) <= 0:
             return None
 
         return {name: {"days": self.get_days(),
-                       "target_hours": target}}
+                       "target_hours": int(target)}}
 
 
 
@@ -162,22 +162,22 @@ class SchoolPage(QWidget):
         upper_left_widget.setLayout(upper_left_layout)
 
         # upper-right widgets
-        upper_right_layout = QVBoxLayout()
+        self.upper_right_layout = QVBoxLayout()
 
         for subject in self.notebook.week_config.keys():
-            upper_right_layout.addLayout(self.create_subject_block(subject))
+            self.upper_right_layout.addLayout(self.create_subject_block(subject))
 
         upper_right_widget = QWidget()
-        upper_right_widget.setLayout(upper_right_layout)
+        upper_right_widget.setLayout(self.upper_right_layout)
 
         # lower widgets
-        lower_layout = QVBoxLayout()
+        self.lower_layout = QVBoxLayout()
 
         for subject in self.notebook.week_config.keys():
-            lower_layout.addWidget(self.create_weekly_progress_bar(subject))
+            self.lower_layout.addWidget(self.create_weekly_progress_bar(subject))
 
         lower_widget = QWidget()
-        lower_widget.setLayout(lower_layout)
+        lower_widget.setLayout(self.lower_layout)
 
         # summing everything up together
         top_splitter.addWidget(upper_left_widget)
@@ -221,11 +221,11 @@ class SchoolPage(QWidget):
         progress_bar = QProgressBar()
 
         progress_bar.setMinimum(0)
-        progress_bar.setMaximum(self.notebooks[subject].target_hours)
+        progress_bar.setMaximum(self.notebook.week_config[subject]["target_hours"])
         
         progress_bar.setFormat(f"{subject}: %v / %m")
 
-        current_value = self.notebooks[subject].progress(date)
+        current_value = self.notebook[subject].progress(date)
         progress_bar.setValue(current_value)
 
         self.progress_bars[subject] = progress_bar
@@ -241,4 +241,29 @@ class SchoolPage(QWidget):
             for subject in subjects:
                 name = list(subject)[0]
                 self.notebook.week_config[name] = subject[name]
-                print(self.notebook.week_config)
+
+            self.rebuild_ui()
+
+    def rebuild_ui(self):
+        self.clear_layout(self.upper_right_layout)
+        self.clear_layout(self.lower_layout)
+
+        self.progress_bars.clear()
+
+        print(self.notebook.week_config)
+
+        for subject in self.notebook.week_config.keys():
+            subject_layout = self.create_subject_block(subject)
+            self.upper_right_layout.addLayout(subject_layout)
+
+            progress_bar = self.create_weekly_progress_bar(subject)
+            self.lower_layout.addWidget(progress_bar)
+    
+    def clear_layout(self, layout):
+        while layout.count():
+            item = layout.takeAt(0)
+
+            if item.widget():
+                item.widget().deleteLater()
+            elif item.layout():
+                self.clear_layout(item.layout())
