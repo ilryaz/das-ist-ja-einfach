@@ -86,6 +86,7 @@ class WeekSettingsDialog(QDialog):
 
         # upper & central part
         self.list_widget = QListWidget()
+        self.add_test_subjects()
 
         # lower part
         lower_widget = QWidget()
@@ -130,6 +131,16 @@ class WeekSettingsDialog(QDialog):
             data = item.data(Qt.UserRole)
             subjects.append(data)
         return subjects
+    
+    def add_test_subjects(self):
+        for subject in ["Maths", "Physics", "Computer Science"]:
+            data = {subject: {"days": ["Mn", "Tu", "Wd", "Th", "Fr", "Su"],
+                              "target_hours": int(5)}}
+            item = QListWidgetItem()
+            item.setText(f"{subject} {data[subject]["target_hours"]}h on {", ".join(data[subject]["days"])}")
+            item.setData(Qt.UserRole, data)
+
+            self.list_widget.addItem(item)
 
 
 class SchoolPage(QWidget):
@@ -212,9 +223,6 @@ class SchoolPage(QWidget):
         self.notebook.add_hours(hours, date, subject)
         self.progress_bars[subject].setValue(self.notebook.progress(subject, date))
 
-
-        print(subject, hours, "\n") # откладка
-    
     def create_weekly_progress_bar(self, subject):
         date = self.calender.selectedDate().toPython()
 
