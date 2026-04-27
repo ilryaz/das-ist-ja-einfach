@@ -225,7 +225,7 @@ class SchoolPage(QWidget):
         
         progress_bar.setFormat(f"{subject}: %v / %m")
 
-        current_value = self.notebook[subject].progress(date)
+        current_value = self.notebook.progress(subject, date)
         progress_bar.setValue(current_value)
 
         self.progress_bars[subject] = progress_bar
