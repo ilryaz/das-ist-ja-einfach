@@ -257,7 +257,13 @@ class SchoolPage(QWidget):
         pbar.setMaximum(maximum)
         pbar.setValue(current_value)
 
-        pbar.setFormat(f"{subject}: {current_value:.2f} / {maximum}")
+        hours = int(current_value // 1)
+        minutes = int((current_value % 1) * 60)
+        if minutes != 0:
+            pbar.setFormat(f"{subject}: {hours} h {minutes} min / {maximum}")
+        else:
+            pbar.setFormat(f"{subject}: {hours} h / {maximum}")
+
 
 
     def rebuild_ui(self):

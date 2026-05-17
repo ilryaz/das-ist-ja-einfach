@@ -4,4 +4,3 @@ to-do list:
 school:
     add: right-upper widget shows today's hours (done / remaining)
     change: default widget proportions
-            pbar allows all rational numbers
