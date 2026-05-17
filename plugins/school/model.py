@@ -4,12 +4,22 @@ class Notebook:
         self.week_config = {
             "Maths": {
                 "days": ["Mn", "Tu"],
-                "target_hours": 5
+                "target_hours": 11
             },
 
             "Physics": {
                 "days": ["Wd", "Fr"],
-                "target_hours": 3
+                "target_hours": 6
+            },
+
+            "CS": {
+                "days": ["Mn", "Wd", "Fr", "Su"],
+                "target_hours": 7
+            },
+
+            "German": {
+                "days": ["Mn", "Tu", "Wd", "Th", "Fr", "Sa", "Su"],
+                "target_hours": 7
             }
         }
 

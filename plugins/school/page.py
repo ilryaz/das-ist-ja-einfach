@@ -189,6 +189,10 @@ class SchoolPage(QWidget):
         top_splitter.addWidget(upper_right_widget)
         main_splitter.addWidget(top_splitter)
         main_splitter.addWidget(lower_widget)
+
+        main_splitter.setSizes([400, 600])
+        main_splitter.setStretchFactor(1, 1)
+
         main_layout.addWidget(main_splitter)
 
 
