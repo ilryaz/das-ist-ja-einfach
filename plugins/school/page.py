@@ -76,7 +76,7 @@ class NewSubjectDialog(QDialog):
 
 
 class WeekSettingsDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, week_config, parent=None):
         super().__init__(parent)
 
         self.setMinimumWidth(400)
@@ -87,7 +87,6 @@ class WeekSettingsDialog(QDialog):
 
         # upper & central part
         self.list_widget = QListWidget()
-        self.add_test_subjects()
 
         # lower part
         lower_widget = QWidget()
@@ -108,6 +107,15 @@ class WeekSettingsDialog(QDialog):
         main_layout.addWidget(self.list_widget)
         main_layout.addWidget(lower_widget)
 
+        for name in week_config.keys():
+            subject_data = week_config[name]
+            
+            data = {}
+            data[name] = subject_data
+
+            self.add_subject_listwidget_item(data)
+
+
 
     def add_subject(self):
         dialog = NewSubjectDialog()
@@ -117,14 +125,18 @@ class WeekSettingsDialog(QDialog):
             if type(data) != dict:
                 return None
 
-            name = list(data.keys())[0]
-            subject_data = data[name]
+            self.add_subject_listwidget_item(data)
 
-            item = QListWidgetItem()
-            item.setText(f"{name} {subject_data["target_hours"]}h on {", ".join(subject_data["days"])}")
-            item.setData(Qt.UserRole, data)
 
-            self.list_widget.addItem(item)
+    def add_subject_listwidget_item(self, data):
+        name = list(data.keys())[0]
+        subject_data = data[name]
+
+        item = QListWidgetItem()
+        item.setText(f"{name} {subject_data["target_hours"]}h on {", ".join(subject_data["days"])}")
+        item.setData(Qt.UserRole, data)
+
+        self.list_widget.addItem(item)
 
 
     def get_subjects(self):
@@ -219,7 +231,7 @@ class SchoolPage(QWidget):
     
 
     def open_calender_settings(self):
-        settings = WeekSettingsDialog(self)
+        settings = WeekSettingsDialog(self.notebook.week_config, self)
 
         if settings.exec() == QDialog.Accepted:
             subjects = settings.get_subjects()
