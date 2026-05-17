@@ -57,8 +57,10 @@ class NewSubjectDialog(QDialog):
         main_layout.addWidget(central_widget)
         main_layout.addWidget(self.button_box)
 
+
     def get_days(self):
         return [day for day, btn in self.day_buttons.items() if btn.isChecked()]
+
 
     def return_data(self):
         name = self.name_edit.text().strip()
@@ -71,7 +73,6 @@ class NewSubjectDialog(QDialog):
 
         return {name: {"days": self.get_days(),
                        "target_hours": int(target)}}
-
 
 
 class WeekSettingsDialog(QDialog):
@@ -107,6 +108,7 @@ class WeekSettingsDialog(QDialog):
         main_layout.addWidget(self.list_widget)
         main_layout.addWidget(lower_widget)
 
+
     def add_subject(self):
         dialog = NewSubjectDialog()
         if dialog.exec() == QDialog.Accepted:
@@ -123,6 +125,7 @@ class WeekSettingsDialog(QDialog):
             item.setData(Qt.UserRole, data)
 
             self.list_widget.addItem(item)
+
 
     def get_subjects(self):
         subjects = []
@@ -188,6 +191,7 @@ class SchoolPage(QWidget):
         main_splitter.addWidget(lower_widget)
         main_layout.addWidget(main_splitter)
 
+
     def create_subject_block(self, subject):
         layout = QHBoxLayout()
         
@@ -209,28 +213,7 @@ class SchoolPage(QWidget):
 
         return layout
     
-    def handle_add_hours(self, subject, hours):
-        date = self.calender.selectedDate().toPython()
-        self.notebook.add_hours(hours, date, subject)
-        self.progress_bars[subject].setValue(self.notebook.progress(subject, date))
 
-    def create_weekly_progress_bar(self, subject):
-        date = self.calender.selectedDate().toPython()
-
-        progress_bar = QProgressBar()
-
-        progress_bar.setMinimum(0)
-        progress_bar.setMaximum(self.notebook.week_config[subject]["target_hours"])
-        
-        progress_bar.setFormat(f"{subject}: %v / %m")
-
-        current_value = self.notebook.progress(subject, date)
-        progress_bar.setValue(current_value)
-
-        self.progress_bars[subject] = progress_bar
-        
-        return progress_bar
-    
     def open_calender_settings(self):
         settings = WeekSettingsDialog(self)
 
@@ -242,6 +225,40 @@ class SchoolPage(QWidget):
                 self.notebook.week_config[name] = subject[name]
 
             self.rebuild_ui()
+
+
+    def handle_add_hours(self, subject, hours):
+        date = self.calender.selectedDate().toPython()
+        self.notebook.add_hours(hours, date, subject)
+
+        self.update_progress_bar(subject)
+
+
+    def create_weekly_progress_bar(self, subject):
+        progress_bar = QProgressBar()
+
+        progress_bar.setMinimum(0)
+
+        self.progress_bars[subject] = progress_bar
+
+        self.update_progress_bar(subject)
+        
+        return progress_bar
+    
+    
+    def update_progress_bar(self, subject):
+        date = self.calender.selectedDate().toPython()
+        
+        current_value = self.notebook.progress(subject, date)
+        maximum = self.notebook.week_config[subject]["target_hours"]
+
+        pbar = self.progress_bars[subject]
+
+        pbar.setMaximum(maximum)
+        pbar.setValue(current_value)
+
+        pbar.setFormat(f"{subject}: {current_value:.2f} / {maximum}")
+
 
     def rebuild_ui(self):
         self.clear_layout(self.upper_right_layout)
@@ -258,6 +275,7 @@ class SchoolPage(QWidget):
             progress_bar = self.create_weekly_progress_bar(subject)
             self.lower_layout.addWidget(progress_bar)
     
+
     def clear_layout(self, layout):
         while layout.count():
             item = layout.takeAt(0)
