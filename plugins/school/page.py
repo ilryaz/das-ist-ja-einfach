@@ -131,16 +131,6 @@ class WeekSettingsDialog(QDialog):
             data = item.data(Qt.UserRole)
             subjects.append(data)
         return subjects
-    
-    def add_test_subjects(self):
-        for subject in ["Maths", "Physics", "Computer Science"]:
-            data = {subject: {"days": ["Mn", "Tu", "Wd", "Th", "Fr", "Su"],
-                              "target_hours": int(5)}}
-            item = QListWidgetItem()
-            item.setText(f"{subject} {data[subject]["target_hours"]}h on {", ".join(data[subject]["days"])}")
-            item.setData(Qt.UserRole, data)
-
-            self.list_widget.addItem(item)
 
 
 class SchoolPage(QWidget):

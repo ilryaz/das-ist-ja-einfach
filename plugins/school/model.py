@@ -1,7 +1,17 @@
 class Notebook:
     def __init__(self):
         self.data = {}
-        self.week_config = {}
+        self.week_config = {
+            "Maths": {
+                "days": ["Mn", "Tu"],
+                "target_hours": 5
+            },
+
+            "Physics": {
+                "days": ["Wd", "Fr"],
+                "target_hours": 3
+            }
+        }
 
     def add_hours(self, hours, date, subject):
         week = self.get_current_week(date)
