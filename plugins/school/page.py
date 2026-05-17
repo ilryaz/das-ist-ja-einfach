@@ -259,10 +259,12 @@ class SchoolPage(QWidget):
 
         hours = int(current_value // 1)
         minutes = int((current_value % 1) * 60)
-        if minutes != 0:
-            pbar.setFormat(f"{subject}: {hours} h {minutes} min / {maximum}")
+        if hours != 0 and minutes != 0:
+            pbar.setFormat(f"{subject}: {hours} h {minutes} min / {maximum} h")
+        elif hours == 0:
+            pbar.setFormat(f"{subject}: {minutes} min / {maximum} h")
         else:
-            pbar.setFormat(f"{subject}: {hours} h / {maximum}")
+            pbar.setFormat(f"{subject}: {hours} h / {maximum} h")
 
 
 
