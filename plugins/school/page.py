@@ -278,8 +278,6 @@ class SchoolPage(QWidget):
 
         self.progress_bars.clear()
 
-        print(self.notebook.week_config)
-
         for subject in self.notebook.week_config.keys():
             subject_layout = self.create_subject_block(subject)
             self.upper_right_layout.addLayout(subject_layout)

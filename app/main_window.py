@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         # Sidebar
         self.sidebar = QListWidget()
         self.sidebar.setMaximumWidth(300)
-        self.sidebar.setMinimumWidth(50)
+        self.sidebar.setMinimumWidth(85)
 
         # Stack
         self.stack = QStackedWidget()
