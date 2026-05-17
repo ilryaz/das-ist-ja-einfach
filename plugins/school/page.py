@@ -155,6 +155,7 @@ class SchoolPage(QWidget):
         self.calender_settings.clicked.connect(self.open_calender_settings)
 
         self.calender = QCalendarWidget()
+        self.calender.clicked.connect(self.rebuild_ui)
 
         upper_left_layout.addWidget(self.calender_settings)
         upper_left_layout.addWidget(self.calender)
