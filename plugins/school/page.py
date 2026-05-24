@@ -24,7 +24,7 @@ class NewSubjectDialog(QDialog):
         self.name_edit.setPlaceholderText("Enter a name")
 
         self.time_goal_edit = QLineEdit()
-        self.time_goal_edit.setPlaceholderText("Enter target time")
+        self.time_goal_edit.setPlaceholderText("Enter time in hours")
         
         # central widgets / week buttons
         buttons_widget = QWidget()
@@ -72,7 +72,7 @@ class NewSubjectDialog(QDialog):
             return None
 
         return {name: {"days": self.get_days(),
-                       "target_hours": int(target)}}
+                       "target_minutes": int(target) * 60}}
 
 
 class WeekSettingsDialog(QDialog):
@@ -133,7 +133,7 @@ class WeekSettingsDialog(QDialog):
         subject_data = data[name]
 
         item = QListWidgetItem()
-        item.setText(f"{name} {subject_data["target_hours"]}h on {", ".join(subject_data["days"])}")
+        item.setText(f"{name} {subject_data["target_minutes"] // 60}h on {", ".join(subject_data["days"])}")
         item.setData(Qt.UserRole, data)
 
         self.list_widget.addItem(item)
@@ -218,9 +218,9 @@ class SchoolPage(QWidget):
         add_thirty_minutes = QPushButton("+30 mins")
         add_fifteen_minutes = QPushButton("+15 mins")
 
-        add_one_hour.clicked.connect(lambda: self.handle_add_hours(subject, 1))
-        add_thirty_minutes.clicked.connect(lambda: self.handle_add_hours(subject, 0.5))
-        add_fifteen_minutes.clicked.connect(lambda: self.handle_add_hours(subject, 0.25))
+        add_one_hour.clicked.connect(lambda: self.handle_add_minutes(subject, 60))
+        add_thirty_minutes.clicked.connect(lambda: self.handle_add_minutes(subject, 30))
+        add_fifteen_minutes.clicked.connect(lambda: self.handle_add_minutes(subject, 15))
 
         layout.addWidget(label)
         layout.addWidget(add_one_hour)
@@ -243,9 +243,9 @@ class SchoolPage(QWidget):
             self.rebuild_ui()
 
 
-    def handle_add_hours(self, subject, hours):
+    def handle_add_minutes(self, subject, minutes):
         date = self.calender.selectedDate().toPython()
-        self.notebook.add_hours(hours, date, subject)
+        self.notebook.add_minutes(minutes, date, subject)
 
         self.update_progress_bar(subject)
 
@@ -266,21 +266,21 @@ class SchoolPage(QWidget):
         date = self.calender.selectedDate().toPython()
         
         current_value = self.notebook.progress(subject, date)
-        maximum = self.notebook.week_config[subject]["target_hours"]
+        maximum = self.notebook.week_config[subject]["target_minutes"]
 
         pbar = self.progress_bars[subject]
 
         pbar.setMaximum(maximum)
         pbar.setValue(current_value)
 
-        hours = int(current_value // 1)
-        minutes = int((current_value % 1) * 60)
+        hours = int(current_value // 60)
+        minutes = int(current_value % 60)
         if hours != 0 and minutes != 0:
-            pbar.setFormat(f"{subject}: {hours} h {minutes} min / {maximum} h")
+            pbar.setFormat(f"{subject}: {hours} h {minutes} min / {maximum // 60} h")
         elif hours == 0:
-            pbar.setFormat(f"{subject}: {minutes} min / {maximum} h")
+            pbar.setFormat(f"{subject}: {minutes} min / {maximum // 60} h")
         else:
-            pbar.setFormat(f"{subject}: {hours} h / {maximum} h")
+            pbar.setFormat(f"{subject}: {hours} h / {maximum // 60} h")
 
 
 
