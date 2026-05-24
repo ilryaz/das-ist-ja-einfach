@@ -285,14 +285,28 @@ class SchoolPage(QWidget):
 
 
     def rebuild_ui(self):
+        days_map = {
+                    0: "Mn",
+                    1: "Tu",
+                    2: "Wd",
+                    3: "Th",
+                    4: "Fr",
+                    5: "Sa",
+                    6: "Su"
+                }
+        date = self.calender.selectedDate().toPython()
+        current_day = days_map[date.weekday()]
+
         self.clear_layout(self.upper_right_layout)
         self.clear_layout(self.lower_layout)
 
         self.progress_bars.clear()
 
         for subject in self.notebook.week_config.keys():
-            subject_layout = self.create_subject_block(subject)
-            self.upper_right_layout.addLayout(subject_layout)
+            subject_data = self.notebook.week_config[subject]
+            if current_day in subject_data["days"]:
+                subject_layout = self.create_subject_block(subject)
+                self.upper_right_layout.addLayout(subject_layout)
 
             progress_bar = self.create_weekly_progress_bar(subject)
             self.lower_layout.addWidget(progress_bar)

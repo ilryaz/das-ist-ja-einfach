@@ -8,5 +8,4 @@ school:
          "remove" and "edit" functional buttons for WeekSettingsDialog.
          all data in json file
 
-    change: self.data stores time in minutes (pbar still show in h m)
-            current day only shows current day's subjects
+    change: nothing
