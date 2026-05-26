@@ -6,8 +6,9 @@ from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
 from PySide6.QtCore import Qt
 from .model import Notebook
 
-class NewSubjectDialog(QDialog):
-    def __init__(self):
+
+class SubjectDialog(QDialog):
+    def __init__(self, data=None):
         super().__init__()
 
         self.setWindowTitle("New subject")
@@ -25,6 +26,7 @@ class NewSubjectDialog(QDialog):
 
         self.time_goal_edit = QLineEdit()
         self.time_goal_edit.setPlaceholderText("Enter time in hours")
+
         
         # central widgets / week buttons
         buttons_widget = QWidget()
@@ -57,6 +59,9 @@ class NewSubjectDialog(QDialog):
         main_layout.addWidget(central_widget)
         main_layout.addWidget(self.button_box)
 
+        if data:
+            self.set_edit_mode_data(data)
+
 
     def get_days(self):
         return [day for day, btn in self.day_buttons.items() if btn.isChecked()]
@@ -73,6 +78,61 @@ class NewSubjectDialog(QDialog):
 
         return {name: {"days": self.get_days(),
                        "target_minutes": int(target) * 60}}
+    
+    
+    def set_edit_mode_data(self, data):
+        name = list(data.keys())[0]
+        subject_data = data[name]
+
+        self.name_edit.setText(name)
+
+        for day in subject_data["days"]:
+            button = self.day_buttons[day]
+            button.setChecked(True)
+
+        self.time_goal_edit.setText(str(subject_data["target_minutes"] // 60))
+
+
+class SubjectItemWidget(QWidget):
+    def __init__(self, data, item):
+        super().__init__()
+
+        self.data = data
+        self.item = item
+
+        name = list(data.keys())[0]
+        subject_data = data[name]
+
+        # UI
+        layout = QHBoxLayout(self)
+
+        self.subject_name = QLabel(name)
+        edit_button = QPushButton("Edit")
+        edit_button.setFixedSize(40, 30)
+        delete_button = QPushButton("❌")
+        delete_button.setFixedSize(30, 30)
+
+        edit_button.clicked.connect(lambda: self.edit_subject(data))
+
+        layout.addWidget(self.subject_name)
+        layout.addStretch()
+        layout.addWidget(edit_button)
+        layout.addWidget(delete_button)
+
+    
+    def edit_subject(self, data):
+        dialog = SubjectDialog(data)
+
+        if dialog.exec() == QDialog.Accepted:
+            new_data = dialog.return_data()
+
+            if new_data != data:
+                self.data = new_data
+                self.item.setData(Qt.UserRole, new_data)
+
+                new_name = list(new_data.keys())[0]
+                self.subject_name.setText(new_name)
+
 
 
 class WeekSettingsDialog(QDialog):
@@ -80,7 +140,7 @@ class WeekSettingsDialog(QDialog):
         super().__init__(parent)
 
         self.setMinimumWidth(400)
-        self.setMinimumHeight(250)
+        self.setMinimumHeight(500)
 
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
@@ -118,7 +178,7 @@ class WeekSettingsDialog(QDialog):
 
 
     def add_subject(self):
-        dialog = NewSubjectDialog()
+        dialog = SubjectDialog()
         if dialog.exec() == QDialog.Accepted:
             data = dialog.return_data()
             
@@ -133,10 +193,13 @@ class WeekSettingsDialog(QDialog):
         subject_data = data[name]
 
         item = QListWidgetItem()
-        item.setText(f"{name} {subject_data["target_minutes"] // 60}h on {", ".join(subject_data["days"])}")
-        item.setData(Qt.UserRole, data)
+        widget = SubjectItemWidget(data, item)
+        item.setSizeHint(widget.sizeHint())
 
         self.list_widget.addItem(item)
+        self.list_widget.setItemWidget(item, widget)
+
+        item.setData(Qt.UserRole, data)
 
 
     def get_subjects(self):
