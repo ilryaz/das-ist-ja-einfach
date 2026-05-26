@@ -181,8 +181,14 @@ class SchoolPage(QWidget):
         # upper-right widgets
         self.upper_right_layout = QVBoxLayout()
 
+        date = self.calender.selectedDate().toPython()
+        days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
+        current_day = days_map[date.weekday()]
+
         for subject in self.notebook.week_config.keys():
-            self.upper_right_layout.addLayout(self.create_subject_block(subject))
+            subject_data = self.notebook.week_config[subject]
+            if current_day in subject_data["days"]:
+                self.upper_right_layout.addLayout(self.create_subject_block(subject))
 
         upper_right_widget = QWidget()
         upper_right_widget.setLayout(self.upper_right_layout)
@@ -285,15 +291,7 @@ class SchoolPage(QWidget):
 
 
     def rebuild_ui(self):
-        days_map = {
-                    0: "Mn",
-                    1: "Tu",
-                    2: "Wd",
-                    3: "Th",
-                    4: "Fr",
-                    5: "Sa",
-                    6: "Su"
-                }
+        days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
         date = self.calender.selectedDate().toPython()
         current_day = days_map[date.weekday()]
 
