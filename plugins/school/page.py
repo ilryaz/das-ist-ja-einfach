@@ -95,6 +95,8 @@ class SubjectDialog(QDialog):
 
 class SubjectItemWidget(QWidget):
     delete_requested = Signal(object)
+
+    
     def __init__(self, data, item):
         super().__init__()
 
