@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QWidget, QLabel, QPushButton,
                                QCalendarWidget, QSplitter, QDialog,
                                QDialogButtonBox, QListWidget, QListWidgetItem,
                                QLineEdit)
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from .model import Notebook
 
 
@@ -94,6 +94,7 @@ class SubjectDialog(QDialog):
 
 
 class SubjectItemWidget(QWidget):
+    delete_requested = Signal(object)
     def __init__(self, data, item):
         super().__init__()
 
@@ -112,7 +113,8 @@ class SubjectItemWidget(QWidget):
         delete_button = QPushButton("❌")
         delete_button.setFixedSize(30, 30)
 
-        edit_button.clicked.connect(lambda: self.edit_subject(data))
+        edit_button.clicked.connect(lambda: self.on_edit_subject(data))
+        delete_button.clicked.connect(self.on_delete_subject)
 
         layout.addWidget(self.subject_name)
         layout.addStretch()
@@ -120,20 +122,27 @@ class SubjectItemWidget(QWidget):
         layout.addWidget(delete_button)
 
     
-    def edit_subject(self, data):
+    def on_edit_subject(self, data):
         dialog = SubjectDialog(data)
 
         if dialog.exec() == QDialog.Accepted:
             new_data = dialog.return_data()
 
-            if new_data != data:
-                self.data = new_data
-                self.item.setData(Qt.UserRole, new_data)
+            if not new_data:
+                return None
 
-                new_name = list(new_data.keys())[0]
-                self.subject_name.setText(new_name)
+            self.data = new_data
+            self.item.setData(Qt.UserRole, new_data)
 
+            new_name = list(new_data.keys())[0]
+            self.subject_name.setText(new_name)
 
+            self.parent().parent().sync_model()
+    
+
+    def on_delete_subject(self):
+        self.delete_requested.emit(self)
+    
 
 class WeekSettingsDialog(QDialog):
     def __init__(self, week_config, parent=None):
@@ -194,6 +203,7 @@ class WeekSettingsDialog(QDialog):
 
         item = QListWidgetItem()
         widget = SubjectItemWidget(data, item)
+        widget.delete_requested.connect(self.delete_item)
         item.setSizeHint(widget.sizeHint())
 
         self.list_widget.addItem(item)
@@ -209,6 +219,14 @@ class WeekSettingsDialog(QDialog):
             data = item.data(Qt.UserRole)
             subjects.append(data)
         return subjects
+
+
+    def delete_item(self, widget):
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            if self.list_widget.itemWidget(item) is widget:
+                self.list_widget.takeItem(i)
+                break
 
 
 class SchoolPage(QWidget):
