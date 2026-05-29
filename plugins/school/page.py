@@ -8,7 +8,7 @@ from .model import Notebook
 
 
 class SubjectDialog(QDialog):
-    def __init__(self, data=None):
+    def __init__(self, notebook, data=None):
         super().__init__()
 
         self.setWindowTitle("New subject")
@@ -16,6 +16,8 @@ class SubjectDialog(QDialog):
 
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
+
+        self.notebook = notebook
 
         # central widgets
         central_widget = QWidget()
@@ -61,6 +63,9 @@ class SubjectDialog(QDialog):
 
         if data:
             self.set_edit_mode_data(data)
+            self.id = list(data.keys())[0]
+        else:
+            self.id = self.notebook.generate_subject_id()
 
 
     def get_days(self):
@@ -76,15 +81,16 @@ class SubjectDialog(QDialog):
         if not target.isdigit() or int(target) <= 0:
             return None
 
-        return {name: {"days": self.get_days(),
-                       "target_minutes": int(target) * 60}}
+        return {self.id: {"name": name,
+                          "days": self.get_days(),
+                          "target_minutes": int(target) * 60}}
     
     
     def set_edit_mode_data(self, data):
-        name = list(data.keys())[0]
-        subject_data = data[name]
+        id = list(data.keys())[0]
+        subject_data = data[id]
 
-        self.name_edit.setText(name)
+        self.name_edit.setText(subject_data["name"])
 
         for day in subject_data["days"]:
             button = self.day_buttons[day]
@@ -96,26 +102,26 @@ class SubjectDialog(QDialog):
 class SubjectItemWidget(QWidget):
     delete_requested = Signal(object)
 
-    
-    def __init__(self, data, item):
+
+    def __init__(self, notebook, data, item):
         super().__init__()
 
-        self.data = data
+        self.data = data #format: {name: x, days: x, time_goal: x}
         self.item = item
+        self.notebook = notebook
 
-        name = list(data.keys())[0]
-        subject_data = data[name]
+        self.id = list(data)[0]
 
         # UI
         layout = QHBoxLayout(self)
 
-        self.subject_name = QLabel(name)
+        self.subject_name = QLabel(self.data[self.id]["name"])
         edit_button = QPushButton("Edit")
         edit_button.setFixedSize(40, 30)
         delete_button = QPushButton("❌")
         delete_button.setFixedSize(30, 30)
 
-        edit_button.clicked.connect(lambda: self.on_edit_subject(data))
+        edit_button.clicked.connect(self.on_edit_subject)
         delete_button.clicked.connect(self.on_delete_subject)
 
         layout.addWidget(self.subject_name)
@@ -124,8 +130,8 @@ class SubjectItemWidget(QWidget):
         layout.addWidget(delete_button)
 
     
-    def on_edit_subject(self, data):
-        dialog = SubjectDialog(data)
+    def on_edit_subject(self):
+        dialog = SubjectDialog(self.notebook, self.data)
 
         if dialog.exec() == QDialog.Accepted:
             new_data = dialog.return_data()
@@ -136,10 +142,8 @@ class SubjectItemWidget(QWidget):
             self.data = new_data
             self.item.setData(Qt.UserRole, new_data)
 
-            new_name = list(new_data.keys())[0]
+            new_name = self.data[self.id]["name"]
             self.subject_name.setText(new_name)
-
-            self.parent().parent().sync_model()
     
 
     def on_delete_subject(self):
@@ -147,8 +151,10 @@ class SubjectItemWidget(QWidget):
     
 
 class WeekSettingsDialog(QDialog):
-    def __init__(self, week_config, parent=None):
+    def __init__(self, notebook, parent=None):
         super().__init__(parent)
+
+        self.notebook = notebook
 
         self.setMinimumWidth(400)
         self.setMinimumHeight(500)
@@ -178,33 +184,30 @@ class WeekSettingsDialog(QDialog):
         main_layout.addWidget(self.list_widget)
         main_layout.addWidget(lower_widget)
 
-        for name in week_config.keys():
-            subject_data = week_config[name]
+        for id in self.notebook.week_config.keys():
+            subject_data = self.notebook.week_config[id]
             
             data = {}
-            data[name] = subject_data
+            data[id] = subject_data
 
             self.add_subject_listwidget_item(data)
 
 
 
     def add_subject(self):
-        dialog = SubjectDialog()
+        dialog = SubjectDialog(self.notebook)
         if dialog.exec() == QDialog.Accepted:
             data = dialog.return_data()
             
-            if type(data) != dict:
+            if not isinstance(data, dict):
                 return None
 
             self.add_subject_listwidget_item(data)
 
 
     def add_subject_listwidget_item(self, data):
-        name = list(data.keys())[0]
-        subject_data = data[name]
-
         item = QListWidgetItem()
-        widget = SubjectItemWidget(data, item)
+        widget = SubjectItemWidget(self.notebook, data, item)
         widget.delete_requested.connect(self.delete_item)
         item.setSizeHint(widget.sizeHint())
 
@@ -268,10 +271,10 @@ class SchoolPage(QWidget):
         days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
         current_day = days_map[date.weekday()]
 
-        for subject in self.notebook.week_config.keys():
-            subject_data = self.notebook.week_config[subject]
+        for id in self.notebook.week_config.keys():
+            subject_data = self.notebook.week_config[id]
             if current_day in subject_data["days"]:
-                self.upper_right_layout.addLayout(self.create_subject_block(subject))
+                self.upper_right_layout.addLayout(self.create_subject_block(id))
 
         upper_right_widget = QWidget()
         upper_right_widget.setLayout(self.upper_right_layout)
@@ -279,8 +282,8 @@ class SchoolPage(QWidget):
         # lower widgets
         self.lower_layout = QVBoxLayout()
 
-        for subject in self.notebook.week_config.keys():
-            self.lower_layout.addWidget(self.create_weekly_progress_bar(subject))
+        for id in self.notebook.week_config.keys():
+            self.lower_layout.addWidget(self.create_weekly_progress_bar(id))
 
         lower_widget = QWidget()
         lower_widget.setLayout(self.lower_layout)
@@ -297,19 +300,19 @@ class SchoolPage(QWidget):
         main_layout.addWidget(main_splitter)
 
 
-    def create_subject_block(self, subject):
+    def create_subject_block(self, id):
         layout = QHBoxLayout()
         
-        label = QLabel(subject)
+        label = QLabel(self.notebook.week_config[id]["name"])
         
         # buttons
         add_one_hour = QPushButton("+1 hour")
         add_thirty_minutes = QPushButton("+30 mins")
         add_fifteen_minutes = QPushButton("+15 mins")
 
-        add_one_hour.clicked.connect(lambda: self.handle_add_minutes(subject, 60))
-        add_thirty_minutes.clicked.connect(lambda: self.handle_add_minutes(subject, 30))
-        add_fifteen_minutes.clicked.connect(lambda: self.handle_add_minutes(subject, 15))
+        add_one_hour.clicked.connect(lambda: self.handle_add_minutes(id, 60))
+        add_thirty_minutes.clicked.connect(lambda: self.handle_add_minutes(id, 30))
+        add_fifteen_minutes.clicked.connect(lambda: self.handle_add_minutes(id, 15))
 
         layout.addWidget(label)
         layout.addWidget(add_one_hour)
@@ -320,44 +323,48 @@ class SchoolPage(QWidget):
     
 
     def open_calender_settings(self):
-        settings = WeekSettingsDialog(self.notebook.week_config, self)
+        settings = WeekSettingsDialog(self.notebook, self)
 
         if settings.exec() == QDialog.Accepted:
             subjects = settings.get_subjects()
 
+            self.notebook.week_config.clear()
+
             for subject in subjects:
-                name = list(subject)[0]
-                self.notebook.week_config[name] = subject[name]
+                subject_id = list(subject.keys())[0]
+
+                self.notebook.week_config[subject_id] = subject[subject_id]
+
 
             self.rebuild_ui()
 
 
-    def handle_add_minutes(self, subject, minutes):
+    def handle_add_minutes(self, id, minutes):
         date = self.calender.selectedDate().toPython()
-        self.notebook.add_minutes(minutes, date, subject)
+        self.notebook.add_minutes(minutes, date, id)
 
-        self.update_progress_bar(subject)
+        self.update_progress_bar(id)
 
 
-    def create_weekly_progress_bar(self, subject):
+    def create_weekly_progress_bar(self, id):
         progress_bar = QProgressBar()
 
         progress_bar.setMinimum(0)
 
-        self.progress_bars[subject] = progress_bar
+        self.progress_bars[id] = progress_bar
 
-        self.update_progress_bar(subject)
+        self.update_progress_bar(id)
         
         return progress_bar
     
     
-    def update_progress_bar(self, subject):
+    def update_progress_bar(self, id):
         date = self.calender.selectedDate().toPython()
         
-        current_value = self.notebook.progress(subject, date)
-        maximum = self.notebook.week_config[subject]["target_minutes"]
+        current_value = self.notebook.progress(id, date)
+        maximum = self.notebook.week_config[id]["target_minutes"]
 
-        pbar = self.progress_bars[subject]
+        pbar = self.progress_bars[id]
 
         pbar.setMaximum(maximum)
         pbar.setValue(current_value)
@@ -365,11 +372,11 @@ class SchoolPage(QWidget):
         hours = int(current_value // 60)
         minutes = int(current_value % 60)
         if hours != 0 and minutes != 0:
-            pbar.setFormat(f"{subject}: {hours} h {minutes} min / {maximum // 60} h")
+            pbar.setFormat(f"{self.notebook.week_config[id]["name"]}: {hours} h {minutes} min / {maximum // 60} h")
         elif hours == 0:
-            pbar.setFormat(f"{subject}: {minutes} min / {maximum // 60} h")
+            pbar.setFormat(f"{self.notebook.week_config[id]["name"]}: {minutes} min / {maximum // 60} h")
         else:
-            pbar.setFormat(f"{subject}: {hours} h / {maximum // 60} h")
+            pbar.setFormat(f"{self.notebook.week_config[id]["name"]}: {hours} h / {maximum // 60} h")
 
 
 
@@ -383,13 +390,13 @@ class SchoolPage(QWidget):
 
         self.progress_bars.clear()
 
-        for subject in self.notebook.week_config.keys():
-            subject_data = self.notebook.week_config[subject]
+        for id in self.notebook.week_config.keys():
+            subject_data = self.notebook.week_config[id]
             if current_day in subject_data["days"]:
-                subject_layout = self.create_subject_block(subject)
+                subject_layout = self.create_subject_block(id)
                 self.upper_right_layout.addLayout(subject_layout)
 
-            progress_bar = self.create_weekly_progress_bar(subject)
+            progress_bar = self.create_weekly_progress_bar(id)
             self.lower_layout.addWidget(progress_bar)
     
 
