@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QMainWindow, QLabel, QSplitter,
                                QPushButton, QWidget,
@@ -24,7 +25,7 @@ class SettingsDialog(QDialog):
         label = QLabel("Theme")
 
         combo = QComboBox()
-        combo.addItems(["Light", "Dark"])
+        combo.addItems(["Light", "Dark", "Catppuccin"])
 
         combo.currentTextChanged.connect(self.change_theme)
 
@@ -42,7 +43,17 @@ class SettingsDialog(QDialog):
         main_layout.addWidget(self.button_box)
     
     def change_theme(self, theme):
-        pass
+        mapping = {
+            "Light": "light.qss",
+            "Dark": "dark.qss",
+            "Catppuccin": "catppuccin.qss"
+        }
+
+        project_root = Path(__file__).parent.parent
+        theme_file = project_root / "themes" / mapping[theme]
+
+        with open(theme_file, encoding="utf-8") as f:
+            QApplication.instance().setStyleSheet(f.read())
 
 
 
