@@ -12,3 +12,4 @@ add:
 fix:
 - [ ] when changing subject's name in edit mode it changes current subject in data, not create different one
 - [ ] fix week_config format and its usage everywhere
+- [ ] how themes look

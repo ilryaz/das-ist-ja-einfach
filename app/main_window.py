@@ -1,4 +1,4 @@
-import sys
+import json
 from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QMainWindow, QLabel, QSplitter,
@@ -24,14 +24,12 @@ class SettingsDialog(QDialog):
 
         label = QLabel("Theme")
 
-        combo = QComboBox()
-        combo.addItems(["Light", "Dark", "Catppuccin"])
-
-        combo.currentTextChanged.connect(self.change_theme)
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItems(["Light", "Dark", "Catppuccin"])
 
         theme_layout.addWidget(label)
         theme_layout.addStretch()
-        theme_layout.addWidget(combo)
+        theme_layout.addWidget(self.theme_combo)
 
         # Lower buttons
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -41,20 +39,6 @@ class SettingsDialog(QDialog):
         # Summing everything up together
         main_layout.addWidget(theme_button)
         main_layout.addWidget(self.button_box)
-    
-    def change_theme(self, theme):
-        mapping = {
-            "Light": "light.qss",
-            "Dark": "dark.qss",
-            "Catppuccin": "catppuccin.qss"
-        }
-
-        project_root = Path(__file__).parent.parent
-        theme_file = project_root / "themes" / mapping[theme]
-
-        with open(theme_file, encoding="utf-8") as f:
-            QApplication.instance().setStyleSheet(f.read())
-
 
 
 
@@ -109,8 +93,43 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
+        self.load_theme()
+
     def open_settings_dialog(self):
         settings = SettingsDialog()
 
         if settings.exec() == QDialog.Accepted:
-            pass
+            theme = settings.theme_combo.currentText()
+
+            self.save_theme(theme)
+            self.apply_theme(theme)
+
+
+    def save_theme(self, theme):
+        SETTINGS_FILE = Path(__file__).parent.parent / "data" / "settings.json"
+
+        data = {
+            "theme": theme
+        }
+
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4)
+
+    def apply_theme(self, theme):
+        themes = {
+            "Light": "light.qss",
+            "Dark": "dark.qss",
+            "Catppuccin": "catppuccin.qss"
+        }
+
+        theme_file = Path(__file__).parent.parent / "themes" / themes[theme]
+
+        with open(theme_file, encoding="utf-8") as file:
+            QApplication.instance().setStyleSheet(file.read())
+
+    def load_theme(self):
+        SETTINGS_FILE = Path(__file__).parent.parent / "data" / "settings.json"
+        with open(SETTINGS_FILE, encoding="utf-8") as file:
+            data = json.load(file)
+            theme = data.get("theme", "Light")
+        self.apply_theme(theme)
