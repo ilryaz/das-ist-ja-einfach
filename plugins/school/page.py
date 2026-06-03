@@ -234,6 +234,28 @@ class WeekSettingsDialog(QDialog):
                 break
 
 
+class TimeButtonDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(500)
+
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
+
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+
+        lower_widget = QWidget()
+        lower_layout = QHBoxLayout(lower_widget)
+        lower_layout.addWidget(self.button_box)
+
+        main_layout.addWidget(lower_widget)
+
+
+
 class SchoolPage(QWidget):
     def __init__(self):
         super().__init__()
@@ -306,8 +328,25 @@ class SchoolPage(QWidget):
         label = QLabel(self.notebook.week_config[id]["name"])
         layout.addWidget(label)
 
-        # buttons
-        for time in self.notebook.time_buttons["time_buttons"]:
+        self.add_time_buttons(id, layout)
+
+        add_time_button = QPushButton("+")
+        add_time_button.setFixedWidth(30)
+        add_time_button.clicked.connect(self.open_time_buttons_settings)
+
+        layout.addWidget(add_time_button)
+
+        return layout
+
+
+    def open_time_buttons_settings(self):
+        settings = TimeButtonDialog(self)
+
+        if settings.exec() == QDialog.Accepted:
+            pass
+    
+    def add_time_buttons(self, id, layout):
+        for time in self.notebook.time_buttons:
             time = int(time)
             hours = int(time // 60)
             minutes = int(time % 60)
@@ -319,13 +358,6 @@ class SchoolPage(QWidget):
                 button = QPushButton(f"+{hours} h {minutes} m")
             button.clicked.connect(lambda checked=False, t=time: self.handle_add_minutes(id, t))
             layout.addWidget(button)
-
-        add_time_button = QPushButton("+")
-        add_time_button.setFixedWidth(30)
-
-        layout.addWidget(add_time_button)
-
-        return layout
     
 
     def open_calender_settings(self):
