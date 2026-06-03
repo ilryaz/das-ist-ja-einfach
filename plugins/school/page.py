@@ -106,7 +106,7 @@ class SubjectItemWidget(QWidget):
     def __init__(self, notebook, data, item):
         super().__init__()
 
-        self.data = data #format: {name: x, days: x, time_goal: x}
+        self.data = data
         self.item = item
         self.notebook = notebook
 
@@ -309,6 +309,8 @@ class SchoolPage(QWidget):
         add_one_hour = QPushButton("+1 hour")
         add_thirty_minutes = QPushButton("+30 mins")
         add_fifteen_minutes = QPushButton("+15 mins")
+        add_time_button = QPushButton("+")
+        add_time_button.setFixedWidth(30)
 
         add_one_hour.clicked.connect(lambda: self.handle_add_minutes(id, 60))
         add_thirty_minutes.clicked.connect(lambda: self.handle_add_minutes(id, 30))
@@ -318,6 +320,7 @@ class SchoolPage(QWidget):
         layout.addWidget(add_one_hour)
         layout.addWidget(add_thirty_minutes)
         layout.addWidget(add_fifteen_minutes)
+        layout.addWidget(add_time_button)
 
         return layout
     

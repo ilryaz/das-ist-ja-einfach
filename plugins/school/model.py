@@ -1,32 +1,13 @@
 import uuid
+import json
+from pathlib import Path
 
 class Notebook:
     def __init__(self):
         self.data = {}
-        self.week_config = {"1": {
-                "name": "Maths",
-                "days": ["Mn", "Tu"],
-                "target_minutes": 660
-            },
-
-            "2": {
-                "name": "Physics",
-                "days": ["Wd", "Th", "Fr"],
-                "target_minutes": 660
-            },
-
-            "3": {
-                "name": "CS",
-                "days": ["Fr", "Sa", "Su"],
-                "target_minutes": 660
-            },
-
-            "4": {
-                "name": "German",
-                "days": ["Mn", "Tu", "Wd", "Th", "Fr", "Su"],
-                "target_minutes": 660
-            },
-        }
+        week_file = Path(__file__).parent.parent.parent / "data" / "school" / "week_config.json"
+        with open(week_file, encoding="utf-8") as file:
+            self.week_config = json.load(file)
 
 
     def add_minutes(self, minutes, date, id):
