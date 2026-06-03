@@ -5,10 +5,14 @@ from pathlib import Path
 class Notebook:
     def __init__(self):
         self.data = {}
+
         week_file = Path(__file__).parent.parent.parent / "data" / "school" / "week_config.json"
         with open(week_file, encoding="utf-8") as file:
             self.week_config = json.load(file)
-
+        
+        time_buttons_file = Path(__file__).parent.parent.parent / "data" / "school" / "time_buttons.json"
+        with open(time_buttons_file, encoding="utf-8") as file:
+            self.time_buttons = json.load(file)
 
     def add_minutes(self, minutes, date, id):
         week = self.get_current_week(date)

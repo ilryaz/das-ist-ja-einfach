@@ -304,22 +304,25 @@ class SchoolPage(QWidget):
         layout = QHBoxLayout()
         
         label = QLabel(self.notebook.week_config[id]["name"])
-        
+        layout.addWidget(label)
+
         # buttons
-        add_one_hour = QPushButton("+1 hour")
-        add_thirty_minutes = QPushButton("+30 mins")
-        add_fifteen_minutes = QPushButton("+15 mins")
+        for time in self.notebook.time_buttons["time_buttons"]:
+            time = int(time)
+            hours = int(time // 60)
+            minutes = int(time % 60)
+            if hours and not minutes:
+                button = QPushButton(f"+{hours} h")
+            elif minutes and not hours:
+                button = QPushButton(f"+{minutes} m")
+            elif hours and minutes:
+                button = QPushButton(f"+{hours} h {minutes} m")
+            button.clicked.connect(lambda checked=False, t=time: self.handle_add_minutes(id, t))
+            layout.addWidget(button)
+
         add_time_button = QPushButton("+")
         add_time_button.setFixedWidth(30)
 
-        add_one_hour.clicked.connect(lambda: self.handle_add_minutes(id, 60))
-        add_thirty_minutes.clicked.connect(lambda: self.handle_add_minutes(id, 30))
-        add_fifteen_minutes.clicked.connect(lambda: self.handle_add_minutes(id, 15))
-
-        layout.addWidget(label)
-        layout.addWidget(add_one_hour)
-        layout.addWidget(add_thirty_minutes)
-        layout.addWidget(add_fifteen_minutes)
         layout.addWidget(add_time_button)
 
         return layout
