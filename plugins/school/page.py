@@ -99,6 +99,7 @@ class SubjectDialog(QDialog):
         self.time_goal_edit.setText(str(subject_data["target_minutes"] // 60))
 
 
+
 class SubjectItemWidget(QWidget):
     delete_requested = Signal(object)
 
@@ -150,6 +151,7 @@ class SubjectItemWidget(QWidget):
         self.delete_requested.emit(self)
     
 
+
 class WeekSettingsDialog(QDialog):
     def __init__(self, notebook, parent=None):
         super().__init__(parent)
@@ -166,9 +168,6 @@ class WeekSettingsDialog(QDialog):
         self.list_widget = QListWidget()
 
         # lower part
-        lower_widget = QWidget()
-        lower_layout = QHBoxLayout()
-
         self.add_button = QPushButton("Add")
         self.add_button.clicked.connect(self.add_subject)
 
@@ -176,9 +175,10 @@ class WeekSettingsDialog(QDialog):
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
+        lower_widget = QWidget()
+        lower_layout = QHBoxLayout()
         lower_layout.addWidget(self.add_button)
         lower_layout.addWidget(self.button_box)
-
         lower_widget.setLayout(lower_layout)
 
         main_layout.addWidget(self.list_widget)
@@ -191,7 +191,6 @@ class WeekSettingsDialog(QDialog):
             data[id] = subject_data
 
             self.add_subject_listwidget_item(data)
-
 
 
     def add_subject(self):
@@ -234,9 +233,74 @@ class WeekSettingsDialog(QDialog):
                 break
 
 
-class TimeButtonDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+
+class TimeAddDialog(QDialog):
+    def __init__(self, notebook):
+        super().__init__()
+
+        self.setWindowTitle("New time button")
+        self.setFixedSize(350, 200)
+
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
+
+        self.notebook = notebook
+
+        self.time_edit = QLineEdit()
+        self.time_edit.setPlaceholderText("Enter preferred time")
+
+        main_layout.addWidget(self.time_edit)
+
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+
+        main_layout.addWidget(self.button_box)
+    
+    
+    def return_data(self):
+        time = self.time_edit.text().strip()
+        
+        if not time.isdigit():
+            return None
+        
+        return int(time)
+
+
+
+class TimeButtonItemWidget(QWidget):
+    delete_requested = Signal(object)
+
+
+    def __init__(self, time):
+        super().__init__()
+
+        self.time = time
+
+        # UI
+        layout = QHBoxLayout(self)
+
+        self.subject_name = QLabel(str(time))
+        delete_button = QPushButton("❌")
+        delete_button.setFixedSize(30, 30)
+
+        delete_button.clicked.connect(self.on_delete_subject)
+
+        layout.addWidget(self.subject_name)
+        layout.addStretch()
+        layout.addWidget(delete_button)
+
+
+    def on_delete_subject(self):
+        self.delete_requested.emit(self)
+
+
+
+class TimeButtonsDialog(QDialog):
+    def __init__(self, notebook, parent=None):
+        super().__init__()
+
+        self.notebook = notebook
 
         self.setMinimumWidth(400)
         self.setMinimumHeight(500)
@@ -244,15 +308,68 @@ class TimeButtonDialog(QDialog):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
 
+        # list
+        self.list_widget = QListWidget()
+
+        # lower buttons
+        self.add_time_button_button = QPushButton("Add a new button")
+        self.add_time_button_button.clicked.connect(self.add_time_button)
+
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
         lower_widget = QWidget()
         lower_layout = QHBoxLayout(lower_widget)
+        lower_layout.addWidget(self.add_time_button_button)
         lower_layout.addWidget(self.button_box)
 
+        # setting everything up
+        main_layout.addWidget(self.list_widget)
         main_layout.addWidget(lower_widget)
+
+        for time in self.notebook.time_buttons:
+            self.add_time_listwidget_item(time)
+    
+
+    def add_time_button(self):
+        dialog = TimeAddDialog(self.notebook)
+        if dialog.exec() == QDialog.Accepted:
+            time = dialog.return_data()
+            
+            if not isinstance(time, int):
+                return None
+
+            self.add_time_listwidget_item(time)
+
+
+    def add_time_listwidget_item(self, time):
+        item = QListWidgetItem()
+        widget = TimeButtonItemWidget(time)
+        widget.delete_requested.connect(self.delete_item)
+        item.setSizeHint(widget.sizeHint())
+
+        self.list_widget.addItem(item)
+        self.list_widget.setItemWidget(item, widget)
+
+
+    def delete_item(self, widget):
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            if self.list_widget.itemWidget(item) is widget:
+                self.list_widget.takeItem(i)
+                break 
+    
+
+    def get_times(self):
+        times = []
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+
+            widget = self.list_widget.itemWidget(item)
+
+            times.append(widget.time)
+        return times
 
 
 
@@ -293,6 +410,8 @@ class SchoolPage(QWidget):
         days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
         current_day = days_map[date.weekday()]
 
+        self.upper_right_layout.addLayout(self.create_time_buttons_add_button())
+
         for id in self.notebook.week_config.keys():
             subject_data = self.notebook.week_config[id]
             if current_day in subject_data["days"]:
@@ -330,21 +449,34 @@ class SchoolPage(QWidget):
 
         self.add_time_buttons(id, layout)
 
-        add_time_button = QPushButton("+")
-        add_time_button.setFixedWidth(30)
-        add_time_button.clicked.connect(self.open_time_buttons_settings)
+        return layout
 
-        layout.addWidget(add_time_button)
+
+    def create_time_buttons_add_button(self):
+        layout = QHBoxLayout()
+
+        button = QPushButton("+")
+        button.setFixedWidth(30)
+
+        button.clicked.connect(self.open_time_buttons_settings)
+
+        layout.addStretch()
+        layout.addWidget(button)
 
         return layout
 
 
     def open_time_buttons_settings(self):
-        settings = TimeButtonDialog(self)
+        settings = TimeButtonsDialog(self.notebook)
 
         if settings.exec() == QDialog.Accepted:
-            pass
-    
+            new_time_buttons = settings.get_times()
+
+            self.notebook.time_buttons = new_time_buttons
+
+            self.rebuild_ui()
+
+
     def add_time_buttons(self, id, layout):
         for time in self.notebook.time_buttons:
             time = int(time)
@@ -417,7 +549,6 @@ class SchoolPage(QWidget):
             pbar.setFormat(f"{self.notebook.week_config[id]["name"]}: {hours} h / {maximum // 60} h")
 
 
-
     def rebuild_ui(self):
         days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
         date = self.calender.selectedDate().toPython()
@@ -427,6 +558,8 @@ class SchoolPage(QWidget):
         self.clear_layout(self.lower_layout)
 
         self.progress_bars.clear()
+
+        self.upper_right_layout.addLayout(self.create_time_buttons_add_button())
 
         for id in self.notebook.week_config.keys():
             subject_data = self.notebook.week_config[id]
