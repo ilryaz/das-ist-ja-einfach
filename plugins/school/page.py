@@ -247,7 +247,7 @@ class TimeAddDialog(QDialog):
         self.notebook = notebook
 
         self.time_edit = QLineEdit()
-        self.time_edit.setPlaceholderText("Enter preferred time")
+        self.time_edit.setPlaceholderText("Enter preferred time (in minutes)")
 
         main_layout.addWidget(self.time_edit)
 
@@ -280,7 +280,16 @@ class TimeButtonItemWidget(QWidget):
         # UI
         layout = QHBoxLayout(self)
 
-        self.subject_name = QLabel(str(time))
+        hours, minutes = time // 60, time % 60
+
+        if hours and not minutes:
+            display_time = str(hours) + " h"
+        elif not hours and minutes:
+            display_time = str(minutes) + " m"
+        elif hours and minutes:
+            display_time = str(hours) + " h " + str(minutes) + " m"
+
+        self.subject_name = QLabel(display_time)
         delete_button = QPushButton("❌")
         delete_button.setFixedSize(30, 30)
 
