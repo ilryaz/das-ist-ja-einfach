@@ -47,16 +47,21 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Productivity App")
+        self.setMinimumWidth(1000)
+        self.setMinimumHeight(550)
 
         central_widget = QWidget()
+        central_widget.setObjectName("centralWidget")
         main_layout = QHBoxLayout()
 
         # Settings
         settings = QWidget()
+        settings.setObjectName("settingsPanel")
         settings_layout = QVBoxLayout(settings)
-        settings.setFixedWidth(50)
+        settings.setFixedWidth(67)
 
         settings_button = QPushButton("⚙️")
+        settings_button.setObjectName("settingsButton")
         settings_button.clicked.connect(self.open_settings_dialog)
 
         settings_layout.addStretch()
@@ -64,7 +69,8 @@ class MainWindow(QMainWindow):
 
         # Sidebar
         self.sidebar = QListWidget()
-        self.sidebar.setFixedWidth(90)
+        self.sidebar.setMinimumWidth(120)
+        self.sidebar.setMaximumWidth(250)
 
         # Stack
         self.stack = QStackedWidget()
@@ -118,17 +124,22 @@ class MainWindow(QMainWindow):
             json.dump(data, file, indent=4)
 
 
-    def apply_theme(self, theme):
-        themes = {
-            "Light": "light.qss",
-            "Dark": "dark.qss",
-            "Catppuccin": "catppuccin.qss"
-        }
+    def apply_theme(self, theme_name):
+        themes_dir = Path(__file__).parent.parent / "themes"
 
-        theme_file = Path(__file__).parent.parent / "themes" / themes[theme]
+        theme_file = themes_dir / f"{theme_name.lower()}.json"
+        template_file = themes_dir / "template.qss"
 
         with open(theme_file, encoding="utf-8") as file:
-            QApplication.instance().setStyleSheet(file.read())
+            colors = json.load(file)
+
+        with open(template_file, encoding="utf-8") as file:
+            stylesheet = file.read()
+
+        for key, value in colors.items():
+            stylesheet = stylesheet.replace(f"${key}", value)
+
+        QApplication.instance().setStyleSheet(stylesheet)
 
 
     def load_theme(self):

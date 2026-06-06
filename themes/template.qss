@@ -1,0 +1,281 @@
+/* =========================
+GLOBAL
+========================= */
+
+QWidget {
+background: $base;
+color: $text;
+font-size: 20px;
+}
+
+QWidget#centralWidget {
+    background: $crust;
+}
+
+QWidget#settingsPanel {
+    background: $crust;
+}
+
+QWidget#settingsButton {
+    background: $crust;
+}
+
+QToolTip {
+background: $surface0;
+color: $text;
+border: none;
+padding: 4px;
+}
+
+/* =========================
+LABELS
+========================= */
+
+QLabel {
+color: $text;
+background: transparent;
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+QPushButton {
+background: $surface0;
+color: $text;
+border: none;
+border-radius: 10px;
+padding: 8px 14px;
+}
+
+QPushButton:hover {
+background: $surface1;
+}
+
+QPushButton:pressed {
+background: $surface2;
+}
+
+QPushButton:disabled {
+color: $overlay0;
+}
+
+/* =========================
+LINE EDITS
+========================= */
+
+QLineEdit,
+QTextEdit,
+QPlainTextEdit {
+background: $surface0;
+color: $text;
+border: none;
+border-radius: 10px;
+padding: 8px;
+}
+
+QLineEdit:focus,
+QTextEdit:focus,
+QPlainTextEdit:focus {
+border: 1px solid $blue;
+}
+
+/* =========================
+COMBO BOX
+========================= */
+
+QComboBox {
+background: $surface0;
+color: $text;
+border: none;
+border-radius: 10px;
+padding: 8px;
+}
+
+QComboBox:hover {
+background: $surface1;
+}
+
+QComboBox QAbstractItemView {
+background: $surface0;
+color: $text;
+selection-background-color: $blue;
+}
+
+/* =========================
+LIST WIDGETS
+========================= */
+
+QListWidget,
+QTreeWidget,
+QTableWidget {
+background: $mantle;
+border: none;
+outline: none;
+}
+
+QListWidget::item,
+QTreeWidget::item {
+padding: 8px;
+border-radius: 10px;
+}
+
+QListWidget::item:selected,
+QTreeWidget::item:selected {
+background: $surface0;
+}
+
+/* =========================
+PROGRESS BAR
+========================= */
+
+QProgressBar {
+background: $surface0;
+border: none;
+border-radius: 10px;
+text-align: center;
+}
+
+QProgressBar::chunk {
+background: $green;
+background-color: $blue;
+border-radius: 10px;
+}
+
+/* =========================
+SPLITTER
+========================= */
+
+QSplitter::handle {
+background: none;
+}
+
+QSplitter::handle:hover {
+background: $surface2;
+}
+
+/* =========================
+SCROLLBAR
+========================= */
+
+QScrollBar:vertical {
+background: $mantle;
+width: 12px;
+margin: 0;
+}
+
+QScrollBar::handle:vertical {
+background: $surface2;
+border-radius: 10px;
+}
+
+QScrollBar::handle:vertical:hover {
+background: $overlay0;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+height: 0px;
+}
+
+QScrollBar:horizontal {
+background: $mantle;
+height: 12px;
+}
+
+QScrollBar::handle:horizontal {
+background: $surface2;
+border-radius: 10px;
+}
+
+QScrollBar::handle:horizontal:hover {
+background: $overlay0;
+}
+
+/* =========================
+DIALOGS
+========================= */
+
+QDialog {
+background: $base;
+}
+
+/* =========================
+TAB WIDGET
+========================= */
+
+QTabWidget::pane {
+border: none;
+}
+
+QTabBar::tab {
+background: $surface0;
+color: $text;
+padding: 6px;
+}
+
+QTabBar::tab:selected {
+background: $surface1;
+}
+
+/* =========================
+GROUP BOX
+========================= */
+
+QGroupBox {
+border: none;
+border-radius: 10px;
+margin-top: 10px;
+}
+
+QGroupBox::title {
+padding-left: 5px;
+}
+
+/* =========================
+CALENDAR
+========================= */
+
+QCalendarWidget QWidget {
+alternate-background-color: $surface0;
+}
+
+QCalendarWidget QToolButton {
+background: $surface0;
+color: $text;
+border: none;
+border-radius: 10px;
+margin: 2px;
+padding: 4px;
+}
+
+QCalendarWidget QToolButton:hover {
+background: $surface1;
+}
+
+QCalendarWidget QMenu {
+background: $surface0;
+color: $text;
+}
+
+QCalendarWidget QSpinBox {
+background: $surface0;
+color: $text;
+border: none;
+}
+
+QCalendarWidget QAbstractItemView {
+background: $base;
+color: $text;
+selection-background-color: $blue;
+selection-color: $crust;
+outline: none;
+border: none
+}
+
+QCalendarWidget QHeaderView::section {
+background: $surface0;
+color: $text;
+border: none;
+padding: 4px;
+}

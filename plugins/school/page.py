@@ -12,7 +12,7 @@ class SubjectDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("New subject")
-        self.setFixedSize(350, 200)
+        self.setMinimumSize(500, 200)
 
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
@@ -39,7 +39,7 @@ class SubjectDialog(QDialog):
         for day in ("Mn", "Tu", "Wd", "Th", "Fr", "Sa", "Su"):
             button = QPushButton(day)
             button.setCheckable(True)
-            button.setFixedSize(40, 30)
+            button.setMinimumSize(50, 40)
             self.day_buttons[day] = button
             buttons_layout.addWidget(button)
 
@@ -118,9 +118,9 @@ class SubjectItemWidget(QWidget):
 
         self.subject_name = QLabel(self.data[self.id]["name"])
         edit_button = QPushButton("Edit")
-        edit_button.setFixedSize(40, 30)
+        edit_button.setFixedSize(60, 40)
         delete_button = QPushButton("❌")
-        delete_button.setFixedSize(30, 30)
+        delete_button.setFixedSize(50, 40)
 
         edit_button.clicked.connect(self.on_edit_subject)
         delete_button.clicked.connect(self.on_delete_subject)
@@ -239,7 +239,7 @@ class TimeAddDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("New time button")
-        self.setFixedSize(350, 200)
+        self.setFixedSize(350, 120)
 
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
@@ -291,7 +291,7 @@ class TimeButtonItemWidget(QWidget):
 
         self.subject_name = QLabel(display_time)
         delete_button = QPushButton("❌")
-        delete_button.setFixedSize(30, 30)
+        delete_button.setFixedSize(50, 40)
 
         delete_button.clicked.connect(self.on_delete_subject)
 
@@ -403,11 +403,12 @@ class SchoolPage(QWidget):
         self.calender_settings = QPushButton("Settings")
         self.calender_settings.clicked.connect(self.open_calender_settings)
 
-        self.calender = QCalendarWidget()
-        self.calender.clicked.connect(self.rebuild_ui)
+        self.calendar = QCalendarWidget()
+        self.calendar.clicked.connect(self.rebuild_ui)
+        self.calendar.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
 
         upper_left_layout.addWidget(self.calender_settings)
-        upper_left_layout.addWidget(self.calender)
+        upper_left_layout.addWidget(self.calendar)
 
         upper_left_widget = QWidget()
         upper_left_widget.setLayout(upper_left_layout)
@@ -415,7 +416,7 @@ class SchoolPage(QWidget):
         # upper-right widgets
         self.upper_right_layout = QVBoxLayout()
 
-        date = self.calender.selectedDate().toPython()
+        date = self.calendar.selectedDate().toPython()
         days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
         current_day = days_map[date.weekday()]
 
@@ -465,7 +466,7 @@ class SchoolPage(QWidget):
         layout = QHBoxLayout()
 
         button = QPushButton("+")
-        button.setFixedWidth(30)
+        button.setFixedWidth(40)
 
         button.clicked.connect(self.open_time_buttons_settings)
 
@@ -519,7 +520,7 @@ class SchoolPage(QWidget):
 
 
     def handle_add_minutes(self, id, minutes):
-        date = self.calender.selectedDate().toPython()
+        date = self.calendar.selectedDate().toPython()
         self.notebook.add_minutes(minutes, date, id)
 
         self.update_progress_bar(id)
@@ -538,7 +539,7 @@ class SchoolPage(QWidget):
     
     
     def update_progress_bar(self, id):
-        date = self.calender.selectedDate().toPython()
+        date = self.calendar.selectedDate().toPython()
         
         current_value = self.notebook.progress(id, date)
         maximum = self.notebook.week_config[id]["target_minutes"]
@@ -560,7 +561,7 @@ class SchoolPage(QWidget):
 
     def rebuild_ui(self):
         days_map = {0: "Mn", 1: "Tu", 2: "Wd", 3: "Th", 4: "Fr", 5: "Sa", 6: "Su"}
-        date = self.calender.selectedDate().toPython()
+        date = self.calendar.selectedDate().toPython()
         current_day = days_map[date.weekday()]
 
         self.clear_layout(self.upper_right_layout)
