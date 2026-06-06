@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (QMainWindow, QLabel, QSplitter,
 from plugins.school.plugin import SchoolPlugin
 
 class SettingsDialog(QDialog):
-    def __init__(self):
+    def __init__(self, current_theme):
         super().__init__()
 
         self.setWindowTitle("Settings")
@@ -26,6 +26,7 @@ class SettingsDialog(QDialog):
 
         self.theme_combo = QComboBox()
         self.theme_combo.addItems(["Light", "Dark", "Catppuccin"])
+        self.theme_combo.setCurrentText(current_theme)
 
         theme_layout.addWidget(label)
         theme_layout.addStretch()
@@ -95,8 +96,9 @@ class MainWindow(QMainWindow):
 
         self.load_theme()
 
+
     def open_settings_dialog(self):
-        settings = SettingsDialog()
+        settings = SettingsDialog(self.get_current_theme())
 
         if settings.exec() == QDialog.Accepted:
             theme = settings.theme_combo.currentText()
@@ -115,6 +117,7 @@ class MainWindow(QMainWindow):
         with open(SETTINGS_FILE, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
 
+
     def apply_theme(self, theme):
         themes = {
             "Light": "light.qss",
@@ -127,9 +130,14 @@ class MainWindow(QMainWindow):
         with open(theme_file, encoding="utf-8") as file:
             QApplication.instance().setStyleSheet(file.read())
 
+
     def load_theme(self):
+        self.apply_theme(self.get_current_theme())
+
+    
+    def get_current_theme(self):
         SETTINGS_FILE = Path(__file__).parent.parent / "data" / "settings.json"
         with open(SETTINGS_FILE, encoding="utf-8") as file:
             data = json.load(file)
             theme = data.get("theme", "Light")
-        self.apply_theme(theme)
+            return theme
