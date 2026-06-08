@@ -1,0 +1,25 @@
+{
+    "1": {
+        "name": "Maths",
+        "days": ["Mn", "Tu"],
+        "target_minutes": 660
+    },
+
+    "2": {
+        "name": "Physics",
+        "days": ["Wd", "Th", "Fr"],
+        "target_minutes": 660
+    },
+
+    "3": {
+        "name": "CS",
+        "days": ["Fr", "Sa", "Su"],
+        "target_minutes": 660
+    },
+
+    "4": {
+        "name": "German",
+        "days": ["Mn", "Tu", "Wd", "Th", "Fr", "Su"],
+        "target_minutes": 660
+    }
+}
