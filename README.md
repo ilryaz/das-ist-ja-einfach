@@ -22,7 +22,6 @@ Das ist ja einfach!
 - Modular design
 - Separation of UI and data models
 - Theme system based on templates and color palettes
-```
 
 ## Screenshots
 
@@ -33,3 +32,4 @@ Das ist ja einfach!
 ```bash
 pip install PySide6
 python main.py
+```
