@@ -5,6 +5,11 @@ Das ist ja einfach!
   A productivity app that tracks your time in the most nonchalant way.
 </h3>
 
+## About
+
+Das ist ja einfach – a desktop productivity application developed with Python and PySide6.
+
+The project was created to help people track time and monitor weekly learning goals.
 
 ## Features
 - Subject control and management
@@ -22,6 +27,14 @@ Das ist ja einfach!
 - Modular design
 - Separation of UI and data models
 - Theme system based on templates and color palettes
+
+## Technologies
+
+- Python
+- PySide6
+- Qt Widgets
+- JSON
+- pathlib
 
 ## Screenshots
 
