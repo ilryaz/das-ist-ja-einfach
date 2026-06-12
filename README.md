@@ -7,9 +7,9 @@ Das ist ja einfach!
 
 
 ## Features
-- Full control of your subjects
-- Weekly hourly goal for each one of them
-- Study time track
+- Subject control and management
+- Weekly hourly goal for all of them
+- Study time tracking
 - Quick-add study sessions using customizable time buttons
 - Weekly progress monitoring
 - Calendar-based study tracking
